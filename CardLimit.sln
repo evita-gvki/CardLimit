@@ -15,6 +15,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CardLimit", "app\CardLimit\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardLimit.Api", "app\CardLimit.Api\CardLimit.Api.csproj", "{4FA581DE-2F04-44BA-90A8-050FA5097A65}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CardLimit.MyTest", "tests\CardLink.MyTest\CardLimit.MyTest\CardLimit.MyTest.csproj", "{89023480-88D3-4BD6-A6C2-C5D44B1EBB9F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{4FA581DE-2F04-44BA-90A8-050FA5097A65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4FA581DE-2F04-44BA-90A8-050FA5097A65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4FA581DE-2F04-44BA-90A8-050FA5097A65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{89023480-88D3-4BD6-A6C2-C5D44B1EBB9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{89023480-88D3-4BD6-A6C2-C5D44B1EBB9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{89023480-88D3-4BD6-A6C2-C5D44B1EBB9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{89023480-88D3-4BD6-A6C2-C5D44B1EBB9F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -41,6 +47,7 @@ Global
 		{DAB31B0C-0EFC-4442-B716-6F0B052F4508} = {A03E126F-3510-4163-A250-BC3774A15398}
 		{82DE8682-C2C5-448A-A88D-9272015B4500} = {6F13400A-A88B-44F1-96E7-23B6F10392B1}
 		{4FA581DE-2F04-44BA-90A8-050FA5097A65} = {6F13400A-A88B-44F1-96E7-23B6F10392B1}
+		{89023480-88D3-4BD6-A6C2-C5D44B1EBB9F} = {633EA721-F282-42FC-B61C-5FC9FED38E0E}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0947211C-5560-4C7C-B394-57C413924115}

@@ -10,6 +10,7 @@ namespace CardLimit.Core.Services.Options
     public class CreateLimitOptions
     {
         public TransactionType TransactionType { get; set; }
+        public decimal AggregateAmount { get; set; }
         public DateTimeOffset TransactionDate { get; set; }
         public string CardId { get; set; }
     }

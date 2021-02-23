@@ -26,13 +26,21 @@ namespace CardLimit.Api.Controllers
         }
 
         [HttpGet]
-        
-        public IActionResult FindLimits(
-            [FromBody] string CardId)
+        public IActionResult FindLimits([FromBody] string CardId)
         {
             var limits = _cards.FindLimit2Async(CardId).Result.Data;
             return Json(limits);
         }
+
+        [HttpPost]
+        public IActionResult AuthRequest(
+            [FromBody] RequestOptions options)
+        {
+            var card = _cards.AuthRequest(options).Result.Data;
+
+            return Json(card);
+        }
+
     }
 }
 

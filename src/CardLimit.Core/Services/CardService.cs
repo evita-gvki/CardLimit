@@ -12,9 +12,9 @@ using CardLimit.Core.Services.Options;
 
 namespace CardLimit.Core.Services
 {
-     public class CardService : ICardService
+    public class CardService : ICardService
     {
-        
+
         private CardDbContext _dbContext;
         private ICardService _card;
         private ILimitService _limit;
@@ -23,7 +23,7 @@ namespace CardLimit.Core.Services
         {
             _dbContext = dbContext;
             _card = card;
-            _limit= limit;
+            _limit = limit;
         }
 
         public async Task<Result<Card>> FindLimit2Async(string CardId)
@@ -38,8 +38,8 @@ namespace CardLimit.Core.Services
             }
 
             var q = await _dbContext.Set<Card>()
-                .Where(c=> c.CardId == CardId)
-                .Include(l=>l.Limits)
+                .Where(c => c.CardId == CardId)
+                .Include(l => l.Limits)
                 .SingleOrDefaultAsync();
 
             if (q == null)
@@ -60,8 +60,8 @@ namespace CardLimit.Core.Services
         }
 
 
-            //Find available card balance
-            public async Task<Result<Card>> FindAvailableBalance(string cardId)
+        //Find available card balance
+        public async Task<Result<Card>> FindAvailableBalance(string cardId)
         {
             if (string.IsNullOrWhiteSpace(cardId))
             {
@@ -94,7 +94,7 @@ namespace CardLimit.Core.Services
 
         }
 
-       
+
         public async Task<Result<Card>> AuthRequest(RequestOptions options)
         {
             if (string.IsNullOrWhiteSpace(options.CardId))
@@ -106,7 +106,7 @@ namespace CardLimit.Core.Services
                 };
             }
 
-            if(options.TransactionType ==0)
+            if (options.TransactionType == 0)
             {
                 return new Result<Card>()
                 {
@@ -115,7 +115,7 @@ namespace CardLimit.Core.Services
                 };
             }
 
-            if(options.TransactionAmount==0)
+            if (options.TransactionAmount == 0)
             {
                 return new Result<Card>()
                 {
@@ -124,7 +124,7 @@ namespace CardLimit.Core.Services
                 };
             }
 
-            var avail = _card.FindAvailableBalance(options.CardId).Result.Data;
+            var avail = _card.FindLimit2Async(options.CardId).Result.Data;
             if (options.TransactionAmount != avail.AvailableBalance)
             {
                 return new Result<Card>()
@@ -133,44 +133,84 @@ namespace CardLimit.Core.Services
                     Code = Constants.ResultCode.BadRequest
                 };
             }
-                var opt = new FindLimitOptions()
+
+            if (avail.Limits == null)
+            {
+                var opt1 = new CreateLimitOptions()
                 {
                     CardId = options.CardId,
+                    TransactionType = TransactionType.CardPresent,
                     TransactionDate = DateTimeOffset.Now.Date,
-                    TransactionType = options.TransactionType
+                    AggregateAmount = 0M
+
                 };
-                var lim = _limit.FindLimitAsync(opt);
-            if (lim == null)
-            {
+
+                var lim1 = _limit.InitLimitAsync(opt1);
                 var opt2 = new CreateLimitOptions()
                 {
                     CardId = options.CardId,
-                    TransactionType = options.TransactionType,
-                    TransactionDate = DateTimeOffset.Now.Date
+                    TransactionType = TransactionType.CardPresent,
+                    TransactionDate = DateTimeOffset.Now.Date,
+                    AggregateAmount = 0M
+
                 };
 
-                lim = _limit.InitLimitAsync(opt2);
-                var limit = lim.Result.Data;
-
-
+                var lim2 = _limit.InitLimitAsync(opt1);
             }
-              //  if (lim.Result.Data.Transaction == )
 
+
+            if (options.TransactionType.Equals(TransactionType.CardPresent))
+            {
+                var lim3 = await _dbContext.Set<Limit>()
+                  .Where(c => c.CardId == options.CardId)
+                  .Where(c => c.TransactionType == options.TransactionType)
+                  .Where(c => c.TransactionDate == DateTimeOffset.Now.Date)
+                  .SingleOrDefaultAsync();
+                if (lim3.AggregateAmount + options.TransactionAmount >= 1500M)
+                {
                     return new Result<Card>()
                     {
-                        Code = Constants.ResultCode.Success,
-                      
+                        ErrorMessage = "Transaction cancelled",
+                        Code = Constants.ResultCode.BadRequest
                     };
 
+                }
+                else lim3.AggregateAmount += options.TransactionAmount;
+                _dbContext.SaveChanges();
             }
 
+            if (options.TransactionType.Equals(TransactionType.Ecommerce))
+            {
+                var lim3 = await _dbContext.Set<Limit>()
+                    .Where(c => c.CardId == options.CardId)
+                    .Where(c => c.TransactionType == options.TransactionType)
+                    .Where(c => c.TransactionDate == DateTimeOffset.Now.Date)
+                    .SingleOrDefaultAsync();
+                if (lim3.AggregateAmount + options.TransactionAmount >= 500M)
+                {
+                    return new Result<Card>()
+                    {
+                        ErrorMessage = "Transaction cancelled",
+                        Code = Constants.ResultCode.BadRequest
+                    };
 
+                }
+                else lim3.AggregateAmount += options.TransactionAmount;
+                _dbContext.SaveChanges();
+            }
 
+            var card = _card.FindLimit2Async(options.CardId).Result.Data;
+            card.AvailableBalance -= options.TransactionAmount;
+            _dbContext.SaveChanges();
+
+            return new Result<Card>()
+            {
+                Code = Constants.ResultCode.Success,
+                Data = card
+            };
         }
-
-
-
-
     }
+}
+
 
 

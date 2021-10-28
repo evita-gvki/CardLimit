@@ -12,16 +12,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CardLimit.MyTest
 {
-    class CardTest
-    {
-        public class CardTests : IClassFixture<CardLimitFixture>
+    
+        public class CardTest : IClassFixture<CardLimitFixture>
         {
             private ICardService _cards;
             private CardDbContext _dbContext;
             private ILimitService _limits;
 
 
-            public CardTests(CardLimitFixture fixture)
+            public CardTest(CardLimitFixture fixture)
             {
                 _cards = fixture.Scope.ServiceProvider
                     .GetRequiredService<ICardService>();
@@ -37,10 +36,10 @@ namespace CardLimit.MyTest
             {
                 var card = new Card()
                 {
-                    CardId = "1111111111111111",
-                    CardHolderName = "Evita",
-
-                    AvailableBalance = 3000M
+                    CardId = "5215521552155215",
+                    CardHolderName = "Mary Mariou",
+                    AvailableBalance =3000M,
+                    InitialBalance = 3000M
                 };
 
 
@@ -50,6 +49,16 @@ namespace CardLimit.MyTest
                 Assert.NotNull(card);
 
             }
+
+        [Fact]
+            public void GetCard_Success()
+        {
+            var cardid="5215521552155215";
+            var limits = _cards.FindLimit2Async(cardid).Result.Data;
+
+            Assert.NotNull(limits);
+
         }
-    }
+        }
+    
 }

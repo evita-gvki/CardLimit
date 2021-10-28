@@ -16,15 +16,14 @@ namespace CardLimit.Core.Services
     {
 
         private CardDbContext _dbContext;
-        private ICardService _card;
-        private ILimitService _limit;
+        //ivate ICardService _card;
+        //private ILimitService _limit;
 
-        public CardService(CardDbContext dbContext, ICardService card, ILimitService limit)
+        public CardService(CardDbContext dbContext)
         {
             _dbContext = dbContext;
-            _card = card;
-            _limit = limit;
-        }
+            
+         }
 
         public async Task<Result<Card>> FindLimit2Async(string CardId)
         {
@@ -74,6 +73,7 @@ namespace CardLimit.Core.Services
 
             var q = await _dbContext.Set<Card>()
                         .Where(c => c.CardId == cardId)
+                        .Include(l=>l.Limits)
                         .SingleOrDefaultAsync();
 
             if (q == null)
@@ -95,120 +95,120 @@ namespace CardLimit.Core.Services
         }
 
 
-        public async Task<Result<Card>> AuthRequest(RequestOptions options)
-        {
-            if (string.IsNullOrWhiteSpace(options.CardId))
-            {
-                return new Result<Card>()
-                {
-                    ErrorMessage = "CardId is required",
-                    Code = Constants.ResultCode.BadRequest
-                };
-            }
+        //public async Task<Result<Card>> AuthRequest(RequestOptions options)
+        //{
+        //    if (string.IsNullOrWhiteSpace(options.CardId))
+        //    {
+        //        return new Result<Card>()
+        //        {
+        //            ErrorMessage = "CardId is required",
+        //            Code = Constants.ResultCode.BadRequest
+        //        };
+        //    }
 
-            if (options.TransactionType == 0)
-            {
-                return new Result<Card>()
-                {
-                    ErrorMessage = "CardId is required",
-                    Code = Constants.ResultCode.BadRequest
-                };
-            }
+        //    if (options.TransactionType == 0)
+        //    {
+        //        return new Result<Card>()
+        //        {
+        //            ErrorMessage = "CardId is required",
+        //            Code = Constants.ResultCode.BadRequest
+        //        };
+        //    }
 
-            if (options.TransactionAmount == 0)
-            {
-                return new Result<Card>()
-                {
-                    ErrorMessage = "CardId is required",
-                    Code = Constants.ResultCode.BadRequest
-                };
-            }
+        //    if (options.TransactionAmount == 0)
+        //    {
+        //        return new Result<Card>()
+        //        {
+        //            ErrorMessage = "CardId is required",
+        //            Code = Constants.ResultCode.BadRequest
+        //        };
+        //    }
 
-            var avail = _card.FindLimit2Async(options.CardId).Result.Data;
-            if (options.TransactionAmount != avail.AvailableBalance)
-            {
-                return new Result<Card>()
-                {
-                    ErrorMessage = "Transaction cancelled",
-                    Code = Constants.ResultCode.BadRequest
-                };
-            }
+        //    var avail = _card.FindLimit2Async(options.CardId).Result.Data;
+        //    if (options.TransactionAmount != avail.AvailableBalance)
+        //    {
+        //        return new Result<Card>()
+        //        {
+        //            ErrorMessage = "Transaction cancelled",
+        //            Code = Constants.ResultCode.BadRequest
+        //        };
+        //    }
 
-            if (avail.Limits == null)
-            {
-                var opt1 = new CreateLimitOptions()
-                {
-                    CardId = options.CardId,
-                    TransactionType = TransactionType.CardPresent,
-                    TransactionDate = DateTimeOffset.Now.Date,
-                    AggregateAmount = 0M
+        //    if (avail.Limits == null)
+        //    {
+        //        var opt1 = new CreateLimitOptions()
+        //        {
+        //            CardId = options.CardId,
+        //            TransactionType = TransactionType.CardPresent,
+        //            TransactionDate = DateTimeOffset.Now.Date,
+        //            AggregateAmount = 0M
 
-                };
+        //        };
 
-                var lim1 = _limit.InitLimitAsync(opt1);
-                var opt2 = new CreateLimitOptions()
-                {
-                    CardId = options.CardId,
-                    TransactionType = TransactionType.CardPresent,
-                    TransactionDate = DateTimeOffset.Now.Date,
-                    AggregateAmount = 0M
+        //        var lim1 = _limit.InitLimitAsync(opt1);
+        //        var opt2 = new CreateLimitOptions()
+        //        {
+        //            CardId = options.CardId,
+        //            TransactionType = TransactionType.CardPresent,
+        //            TransactionDate = DateTimeOffset.Now.Date,
+        //            AggregateAmount = 0M
 
-                };
+        //        };
 
-                var lim2 = _limit.InitLimitAsync(opt1);
-            }
+        //        var lim2 = _limit.InitLimitAsync(opt1);
+        //    }
 
 
-            if (options.TransactionType.Equals(TransactionType.CardPresent))
-            {
-                var lim3 = await _dbContext.Set<Limit>()
-                  .Where(c => c.CardId == options.CardId)
-                  .Where(c => c.TransactionType == options.TransactionType)
-                  .Where(c => c.TransactionDate == DateTimeOffset.Now.Date)
-                  .SingleOrDefaultAsync();
-                if (lim3.AggregateAmount + options.TransactionAmount >= 1500M)
-                {
-                    return new Result<Card>()
-                    {
-                        ErrorMessage = "Transaction cancelled",
-                        Code = Constants.ResultCode.BadRequest
-                    };
+        //    if (options.TransactionType.Equals(TransactionType.CardPresent))
+        //    {
+        //        var lim3 = await _dbContext.Set<Limit>()
+        //          .Where(c => c.CardId == options.CardId)
+        //          .Where(c => c.TransactionType == options.TransactionType)
+        //          .Where(c => c.TransactionDate == DateTimeOffset.Now.Date)
+        //          .SingleOrDefaultAsync();
+        //        if (lim3.AggregateAmount + options.TransactionAmount >= 1500M)
+        //        {
+        //            return new Result<Card>()
+        //            {
+        //                ErrorMessage = "Transaction cancelled",
+        //                Code = Constants.ResultCode.BadRequest
+        //            };
 
-                }
-                else lim3.AggregateAmount += options.TransactionAmount;
-                _dbContext.SaveChanges();
-            }
+        //        }
+        //        else lim3.AggregateAmount += options.TransactionAmount;
+        //        _dbContext.SaveChanges();
+        //    }
 
-            if (options.TransactionType.Equals(TransactionType.Ecommerce))
-            {
-                var lim3 = await _dbContext.Set<Limit>()
-                    .Where(c => c.CardId == options.CardId)
-                    .Where(c => c.TransactionType == options.TransactionType)
-                    .Where(c => c.TransactionDate == DateTimeOffset.Now.Date)
-                    .SingleOrDefaultAsync();
-                if (lim3.AggregateAmount + options.TransactionAmount >= 500M)
-                {
-                    return new Result<Card>()
-                    {
-                        ErrorMessage = "Transaction cancelled",
-                        Code = Constants.ResultCode.BadRequest
-                    };
+        //    if (options.TransactionType.Equals(TransactionType.Ecommerce))
+        //    {
+        //        var lim3 = await _dbContext.Set<Limit>()
+        //            .Where(c => c.CardId == options.CardId)
+        //            .Where(c => c.TransactionType == options.TransactionType)
+        //            .Where(c => c.TransactionDate == DateTimeOffset.Now.Date)
+        //            .SingleOrDefaultAsync();
+        //        if (lim3.AggregateAmount + options.TransactionAmount >= 500M)
+        //        {
+        //            return new Result<Card>()
+        //            {
+        //                ErrorMessage = "Transaction cancelled",
+        //                Code = Constants.ResultCode.BadRequest
+        //            };
 
-                }
-                else lim3.AggregateAmount += options.TransactionAmount;
-                _dbContext.SaveChanges();
-            }
+        //        }
+        //        else lim3.AggregateAmount += options.TransactionAmount;
+        //        _dbContext.SaveChanges();
+        //    }
 
-            var card = _card.FindLimit2Async(options.CardId).Result.Data;
-            card.AvailableBalance -= options.TransactionAmount;
-            _dbContext.SaveChanges();
+        //    var card = _card.FindLimit2Async(options.CardId).Result.Data;
+        //    card.AvailableBalance -= options.TransactionAmount;
+        //    _dbContext.SaveChanges();
 
-            return new Result<Card>()
-            {
-                Code = Constants.ResultCode.Success,
-                Data = card
-            };
-        }
+        //    return new Result<Card>()
+        //    {
+        //        Code = Constants.ResultCode.Success,
+        //        Data = card
+        //    };
+        //}
     }
 }
 

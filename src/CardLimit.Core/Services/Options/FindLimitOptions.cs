@@ -11,7 +11,7 @@ namespace CardLimit.Core.Services.Options
     public class FindLimitOptions
     {
         public TransactionType TransactionType { get; set; }
-        public DateTimeOffset TransactionDate { get; set; }
+        //public DateTimeOffset TransactionDate { get; set; }
         public string CardId { get; set; }
     }
 }

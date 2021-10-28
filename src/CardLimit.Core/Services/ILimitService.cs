@@ -11,6 +11,7 @@ namespace CardLimit.Core.Services
     public interface ILimitService
     {
         public Task<Result<Limit>> FindLimitAsync(FindLimitOptions options);
-        public Task<Result<Limit>> InitLimitAsync(CreateLimitOptions options);
+        //public Task<Result<Limit>> InitLimitAsync(CreateLimitOptions options);
+        public Task<Result<Card>> AuthRequest2(RequestOptions options);
     }
 }

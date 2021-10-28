@@ -20,7 +20,7 @@
     "CardLimit.Api": {
       "commandName": "Project",
       "launchBrowser": true,
-      "launchUrl": "weatherforecast",
+      "launchUrl": "CardLimit",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

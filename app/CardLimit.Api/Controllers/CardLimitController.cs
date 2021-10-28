@@ -11,22 +11,22 @@ namespace CardLimit.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class CardLimit : Controller
+    public class CardLimitController : Controller
     {
         
-        private readonly ILogger<CardLimit> _logger;
+        private readonly ILogger<CardLimitController> _logger;
         private readonly ICardService _cards;
         private readonly ILimitService _limits;
 
-        public CardLimit(ILogger<CardLimit> logger, ICardService cards, ILimitService limits)
+        public CardLimitController(ILogger<CardLimitController> logger, ICardService cards, ILimitService limits)
         {
             _logger = logger;
             _cards = cards;
             _limits = limits;
         }
 
-        [HttpGet]
-        public IActionResult FindLimits([FromBody] string CardId)
+        [HttpGet("{CardId}")]
+        public IActionResult FindLimits(string CardId)
         {
             var limits = _cards.FindLimit2Async(CardId).Result.Data;
             return Json(limits);
@@ -36,7 +36,7 @@ namespace CardLimit.Api.Controllers
         public IActionResult AuthRequest(
             [FromBody] RequestOptions options)
         {
-            var card = _cards.AuthRequest(options).Result.Data;
+            var card = _limits.AuthRequest2(options).Result.Data;
 
             return Json(card);
         }
